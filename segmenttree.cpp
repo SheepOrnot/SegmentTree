@@ -46,9 +46,17 @@ void SegmentTree::update(int x,int L,int R,int flag)
     push_up(x);
 }
 
-std::pair<double,double> SegmentTree::Calc(int InputN)
+std::pair<double,double> SegmentTree::Calc(int InputN,double X1[],double Y1[],double X2[],double Y2[])
 {
     n = InputN;
+    for(int i = 1; i <= n; ++i)
+    {
+        if(X1[i]>X2[i]) std::swap(X1[i],X2[i]);
+        if(Y1[i]>Y2[i]) std::swap(Y1[i],Y2[i]);
+        line[(i<<1)] = Line(X1[i],X2[i],Y1[i],1);
+        line[(i<<1)-1] = Line(X1[i],X2[i],Y2[i],-1);
+        X[(i<<1)] = X1[i], X[(i<<1)-1] = X2[i];
+    }
     n <<= 1;
     std::sort(X+1,X+n+1);
     std::sort(line+1,line+n+1);
