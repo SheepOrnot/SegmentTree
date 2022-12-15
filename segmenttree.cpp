@@ -45,3 +45,24 @@ void SegmentTree::update(int x,int L,int R,int flag)
     update(x<<1|1,L,R,flag);
     push_up(x);
 }
+
+std::pair<double,double> SegmentTree::Calc(int InputN)
+{
+    n = InputN;
+    n <<= 1;
+    std::sort(X+1,X+n+1);
+    std::sort(line+1,line+n+1);
+    int m = std::unique(X+1,X+n+1)-X-1;
+    build(1,1,m-1);
+    double Area = 0,Perimeter = 0,pre = 0;
+    for(int i = 1; i < n; ++i)
+    {
+        update(1,line[i].l,line[i].r,line[i].flag);
+        Area += (tree[1].len*(line[i+1].h-line[i].h));
+        Perimeter += std::max(tree[1].len,pre)-std::min(tree[1].len,pre);
+        pre = tree[1].len;
+        Perimeter += 2*(tree[1].cnt*(line[i+1].h-line[i].h));
+    }
+    Perimeter += (line[n].r-line[n].l);
+    return std::pair<double,double>(Area,Perimeter);
+}
