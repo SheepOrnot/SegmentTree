@@ -28,10 +28,11 @@ struct Line
 class SegmentTree
 {
 public:
+    int n,m;
     SegmentTree();
     std::pair<double,double> Calc(int InputN,double X1[],double Y1[],double X2[],double Y2[]);
+    void ergodic(int x,int l,int r);
 private:
-    int n;
     double X[MAXN<<1];
     Node tree[MAXN<<2];
     Line line[MAXN<<1];
