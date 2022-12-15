@@ -8,8 +8,8 @@ const int MAXN = 1e3+10;
 
 struct Node
 {
-    int l,r,cov;
-    double len,cnt;
+    int l,r,cov,cnt;
+    double len;
     bool lc,rc;
 };
 
