@@ -60,7 +60,7 @@ std::pair<double,double> SegmentTree::Calc(int InputN,double X1[],double Y1[],do
     n <<= 1;
     std::sort(X+1,X+n+1);
     std::sort(line+1,line+n+1);
-    int m = std::unique(X+1,X+n+1)-X-1;
+    m = std::unique(X+1,X+n+1)-X-1;
     build(1,1,m-1);
     double Area = 0,Perimeter = 0,pre = 0;
     for(int i = 1; i < n; ++i)
@@ -73,4 +73,14 @@ std::pair<double,double> SegmentTree::Calc(int InputN,double X1[],double Y1[],do
     }
     Perimeter += (line[n].r-line[n].l);
     return std::pair<double,double>(Area,Perimeter);
+}
+
+void SegmentTree::ergodic(int x,int l,int r)
+{
+    //返回你想要的值
+    //线段左端点X[tree[x].l]，右端点X[tree[x].r+1]
+    if(tree[x].l==tree[x].r){return;}
+    int mid = (l+r)>>1;
+    build(x<<1,l,mid);
+    build(x<<1|1,mid+1,r);
 }
