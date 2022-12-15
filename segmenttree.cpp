@@ -81,6 +81,6 @@ void SegmentTree::ergodic(int x,int l,int r)
     //线段左端点X[tree[x].l]，右端点X[tree[x].r+1]
     if(tree[x].l==tree[x].r){return;}
     int mid = (l+r)>>1;
-    build(x<<1,l,mid);
-    build(x<<1|1,mid+1,r);
+    ergodic(x<<1,l,mid);
+    ergodic(x<<1|1,mid+1,r);
 }
