@@ -4,7 +4,6 @@
 #include<stdio.h>
 #include<iostream>
 #include<algorithm>
-#include <QDebug>
 const int MAXN = 1e3+10;
 
 struct Node
