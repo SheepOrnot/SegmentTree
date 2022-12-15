@@ -29,7 +29,7 @@ class SegmentTree
 {
 public:
     SegmentTree();
-    std::pair<double,double> Calc(int InputN);
+    std::pair<double,double> Calc(int InputN,double X1[],double Y1[],double X2[],double Y2[]);
 private:
     int n;
     double X[MAXN<<1];
