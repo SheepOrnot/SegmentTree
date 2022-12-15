@@ -4,7 +4,8 @@
 #include<stdio.h>
 #include<iostream>
 #include<algorithm>
-const int MAXN = 1e6+10;
+#include <QDebug>
+const int MAXN = 1e3+10;
 
 struct Node
 {
@@ -18,7 +19,7 @@ struct Line
     int flag;
     double l,r,h;
     Line(){l=r=h=flag=0;}
-    Line(double l,double r,double h,int flag):l(l),r(r),h(h),flag(flag){}
+    Line(double l,double r,double h,int flag){this->l=l,this->r=r,this->h=h,this->flag = flag;}
     bool operator < (const Line& a) const
     {
         return h==a.h ? flag>a.flag : h<a.h;
