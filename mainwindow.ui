@@ -6,14 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1267</width>
+    <height>880</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+<<<<<<< Updated upstream
    <widget class="QLineEdit" name="martixnum">
     <property name="geometry">
      <rect>
@@ -139,14 +140,41 @@
      <string>保存</string>
     </property>
    </widget>
+=======
+   <widget class="QGraphicsView" name="RgraphicsView">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>10</y>
+      <width>721</width>
+      <height>350</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="TgraphicsView">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>360</y>
+      <width>721</width>
+      <height>450</height>
+     </rect>
+    </property>
+   </widget>
+>>>>>>> Stashed changes
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
+<<<<<<< Updated upstream
      <width>800</width>
      <height>17</height>
+=======
+     <width>1267</width>
+     <height>26</height>
+>>>>>>> Stashed changes
     </rect>
    </property>
   </widget>
