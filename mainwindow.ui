@@ -14,29 +14,6 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLineEdit" name="martixnum">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>141</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="numok">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>60</y>
-      <width>80</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>确认</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="x1">
     <property name="geometry">
      <rect>
@@ -87,10 +64,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>确认</string>
+     <string>添加</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="insert">
+   <widget class="QPushButton" name="fileimport">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -106,10 +83,10 @@
    <widget class="QPushButton" name="cancel">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>460</y>
-      <width>151</width>
-      <height>41</height>
+      <x>80</x>
+      <y>350</y>
+      <width>81</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -120,7 +97,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>410</y>
+      <y>460</y>
       <width>151</width>
       <height>41</height>
      </rect>
@@ -135,7 +112,7 @@
       <x>170</x>
       <y>10</y>
       <width>1600</width>
-      <height>350</height>
+      <height>611</height>
      </rect>
     </property>
    </widget>
@@ -143,10 +120,62 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>360</y>
+      <y>619</y>
       <width>1600</width>
-      <height>471</height>
+      <height>211</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>720</y>
+      <width>68</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>总周长:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>750</y>
+      <width>68</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>总面积:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ans_c">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>720</y>
+      <width>68</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ans_s">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>750</y>
+      <width>68</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

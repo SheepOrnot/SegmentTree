@@ -11,6 +11,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsEllipseItem>
 #include <QGraphicsTextItem>
+#include <QMessageBox>
 #include "segmenttree.h"
 
 QT_BEGIN_NAMESPACE
@@ -81,7 +82,7 @@ public:
     QGraphicsScene *Tscene;
     int RsceneWidth, RsceneHeight;
     int vectorWidth = 50;
-    int vectorHeight = 50;
+    int vectorHeight = 20;
     int gviewHeight = 700;
     int gviewWidth  = 700;
 
@@ -97,8 +98,16 @@ public:
     void test();
     void genDrawNode();
     void dfs(int x, int l, int r, drawnode *fa, int dep);
+    void insertLine(QString line);
 
-    int mmax = -1;
+    double mmax = -1;
+    int inputnum = 0;
+
+private slots:
+    void on_xyok_clicked();
+    void on_cancel_clicked();
+    void on_save_clicked();
+    void on_fileimport_clicked();
 
 private:
     Ui::MainWindow *ui;

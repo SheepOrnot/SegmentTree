@@ -13,9 +13,12 @@ drawnode::drawnode(Node *node, drawnode *_fa)
     this->vectorColor = Qt::white;
 }
 
-
 //比例尺 50:1
-static int maprate = 50;
+static double maprate = 100.0;
+static double X1[20];
+static double Y1[20];
+static double X2[20];
+static double Y2[20];
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -23,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     this->resize(1600,900);
-    ui->martixnum->setPlaceholderText(" 矩阵个数 ");
+    //ui->martixnum->setPlaceholderText(" 矩阵个数 ");
     ui->x1->setPlaceholderText("x1");
     ui->x2->setPlaceholderText("x2");
     ui->y1->setPlaceholderText("y1");
@@ -40,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     segtree = new SegmentTree;
 
-    test();
+    //test();
 }
 
 MainWindow::~MainWindow()
@@ -48,10 +51,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
 void MainWindow::node2graph(drawnode* node)
 {
-    QGraphicsRectItem *item = new QGraphicsRectItem(node->x,node->y, (node->treenode->r - node->treenode->l + 1) * maprate, vectorHeight);
+    QGraphicsRectItem *item = new QGraphicsRectItem(node->x,node->y, (segtree->X[node->treenode->r+1] - segtree->X[node->treenode->l]) * maprate, vectorHeight);
+    qDebug() << "noderect: [" << segtree->X[node->treenode->l] << "," << segtree->X[node->treenode->r+1] << "] len: " << (segtree->X[node->treenode->r+1] - segtree->X[node->treenode->l]) * maprate;
     item->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
     item->setZValue(2);
     item->setBrush(QBrush(node->vectorColor));
@@ -59,7 +62,7 @@ void MainWindow::node2graph(drawnode* node)
 
     //QGraphicsTextItem *textitem = new QGraphicsTextItem(node->treenode->s, item);
     char buffer[255];
-    sprintf(buffer, "[%d, %d]", node->treenode->l, node->treenode->r);
+    sprintf(buffer, "[%.2lf,%.2lf]", segtree->X[node->treenode->l], segtree->X[node->treenode->r+1]);
     QGraphicsTextItem *textitem = new QGraphicsTextItem(buffer, item);
     textitem->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
     textitem->setX(node->x);
@@ -93,19 +96,6 @@ void MainWindow::drawNode()
         for(int i = 1; i <= layer[dep]; i ++ )
         {
             drawnode *current = drawNodeData[dep][i];
-            //if(istarget[current->treenode->id])
-            if(0)
-            {
-                current->fontColor = Qt::white;
-                current->lineColor = Qt::blue;
-                current->vectorColor = Qt::red;
-            }
-            else
-            {
-                current->fontColor = Qt::black;
-                current->lineColor = Qt::black;
-                current->vectorColor = Qt::white;
-            }
             node2graph(current);
         }
     }
@@ -153,7 +143,7 @@ void MainWindow::genDrawNode()
             current->x = acc;
             current->y = TsceneHeight / (maxDep + 1) * (maxDep - dep + 1);
 
-            acc += ( current->treenode->r - current->treenode->l + 1) * maprate;
+            acc += ( segtree->X[current->treenode->r+1] - segtree->X[current->treenode->l]) * maprate;
         }
         qDebug() << "layer: " << dep << ": " << layer[dep];
     }
@@ -162,6 +152,7 @@ void MainWindow::genDrawNode()
 
 void MainWindow::drawRect()
 {
+    this->Rscene->clear();
     for(int i = 0; i < rect_data.size(); i ++ )
     {
         //QGraphicsRectItem *item = new QGraphicsRectItem(rect_data[i]->x1,rect_data[i]->y1, rect_data[i]->x2 - rect_data[i]->x1, rect_data[i]->y2 - rect_data[i]->y1);
@@ -169,31 +160,11 @@ void MainWindow::drawRect()
         item->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
         item->setZValue(1);
         item->setBrush(QBrush(Qt::white));
+        item->setPen(QPen(rect_data[i]->bgcolor));
         Rscene->addItem(item);
     }
 }
 
-void MainWindow::drawRectLine()
-{
-    for(int i = 0; i < rect_data.size(); i ++ )
-    {
-        QGraphicsLineItem *lineitem1 = new QGraphicsLineItem(rect_data[i]->x1, rect_data[i]->y1, rect_data[i]->x2, rect_data[i]->y1);
-
-        lineitem1->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
-        lineitem1->setZValue(2);
-        lineitem1->setPen(QPen(Qt::blue));
-        Rscene->addItem(lineitem1);
-
-        QGraphicsLineItem *lineitem2 = new QGraphicsLineItem(rect_data[i]->x1, rect_data[i]->y2, rect_data[i]->x2, rect_data[i]->y2);
-
-        lineitem2->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
-        lineitem2->setZValue(2);
-        lineitem2->setPen(QPen(Qt::red));
-        Rscene->addItem(lineitem2);
-    }
-}
-
-//inline void setRect(int x, int y, int w, int h) Q_DECL_NOTHROW;
 void myrect::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     this->rect.setRect(this->x, this->y, this->w, this->h);
@@ -214,58 +185,192 @@ void myrect::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
     painter->setPen(mPen);
     painter->setBrush(mBrush);
     painter->drawPath(pathn);
-
-
-    //有重叠的情况
-    if(!this->scene()->collidingItems(this).isEmpty())
-    {
-       QList<QGraphicsItem *> lstcolliItems = this->scene()->collidingItems(this);
-       int nColliNum = lstcolliItems.count();
-       for(int i = 0;i<nColliNum;i++)
-       {
-           QGraphicsItem* pTempItem = this->scene()->collidingItems(this)[i];
-           QPainterPath tempPath = pTempItem->shape();
-           tempPath.translate(pTempItem->pos());//转换到view中的坐标
-           pathOthers += tempPath;//记录与本item重叠的item的路径
-       }
-       path.translate(this->pos());//转换到view中的坐标
-       path &= pathOthers;//计算重叠部分的路径path
-       path.translate(-this->pos().x(),-this->pos().y());//转换回本Item中的坐标
-       QBrush brush(Qt::cyan);
-       mPen.setColor(Qt::blue);
-       painter->setPen(mPen);
-       painter->setBrush(brush);
-       painter->drawPath(path);//绘制重叠区域
-    }
 }
-
-
 
 void MainWindow::test()
 {
-    double X1[]={0,0,1};
-    double X2[]={0,2,3};
-    double Y1[]={0,0,1};
-    double Y2[]={0,2,3};
+    double X1[]={0,0,2,3};
+    double X2[]={0,4,6,6};
+    double Y1[]={0,0,2,3};
+    double Y2[]={0,4,6,6};
     rectdata* a = new rectdata(0*maprate,0*maprate,1*maprate,1*maprate);
     rectdata* b = new rectdata(2*maprate,2*maprate,3*maprate,3*maprate);
 
     rectdata* c = new rectdata(0*maprate,0*maprate,1*maprate,1*maprate);
     rectdata* d = new rectdata(2*maprate,2*maprate,3*maprate,3*maprate);
 
-    rectdata* f = new rectdata(0,0,200,200);
-    rectdata* g = new rectdata(100,100,300,300);
-    rectdata* h = new rectdata(150,150,300,300);
+    rectdata* f = new rectdata(0*maprate,0*maprate,4*maprate,4*maprate);
+    rectdata* g = new rectdata(2*maprate,2*maprate,6*maprate,6*maprate);
+    rectdata* h = new rectdata(3*maprate,3*maprate,6*maprate,6*maprate);
 
     rect_data.push_back(f);
     rect_data.push_back(g);
     rect_data.push_back(h);
 
-    mmax = 3;
+    mmax = 6;
     drawRect();
-    std::pair<double,double> res =  segtree->Calc(2, X1, Y1, X2, Y2);
+    std::pair<double,double> res =  segtree->Calc(3, X1, Y1, X2, Y2);
     qDebug() << res.first << "  " << res.second;
     drawNode();
 
-    //drawRectLine();
+}
+
+void MainWindow::on_xyok_clicked()
+{
+   double inx1 = ui->x1->text().toDouble();
+   double iny1 = ui->y1->text().toDouble();
+   double inx2 = ui->x2->text().toDouble();
+   double iny2 = ui->y2->text().toDouble();
+   qDebug() << "read input: (" << inx1 << "," << iny1 << ")  " << "(" << inx2 << "," << iny2 << ")";
+
+   inputnum ++;
+   X1[inputnum] = inx1;
+   Y1[inputnum] = iny1;
+   X2[inputnum] = inx2;
+   Y2[inputnum] = iny2;
+
+   mmax = fmax(mmax, inx1);
+   mmax = fmax(mmax, iny1);
+   mmax = fmax(mmax, inx2);
+   mmax = fmax(mmax, iny2);
+
+   rectdata* newrect = new rectdata(inx1*maprate,iny1*maprate,inx2*maprate,iny2*maprate);
+   rect_data.push_back(newrect);
+
+   std::pair<double,double> res =  segtree->Calc(inputnum, X1, Y1, X2, Y2);
+   qDebug() << res.first << "  " << res.second;
+
+   ui->ans_s->setText(QString::number(res.first, 'f', 2));
+   ui->ans_c->setText(QString::number(res.second, 'f', 2));
+
+   drawRect();
+   drawNode();
+}
+
+void MainWindow::on_cancel_clicked()
+{
+    if(inputnum == 0) return;
+    inputnum --;
+    if(inputnum == 0)
+    {
+        Rscene->clear();
+        Tscene->clear();
+        return;
+    }
+    mmax = 0;
+    for(int i = 1; i <= inputnum; i ++)
+    {
+        mmax = fmax(mmax, X1[inputnum]);
+        mmax = fmax(mmax, Y1[inputnum]);
+        mmax = fmax(mmax, X2[inputnum]);
+        mmax = fmax(mmax, Y2[inputnum]);
+    }
+
+    rectdata* last = rect_data.last();
+    free(last);
+    rect_data.pop_back();
+
+    std::pair<double,double> res =  segtree->Calc(inputnum, X1, Y1, X2, Y2);
+    qDebug() << res.first << "  " << res.second;
+
+    ui->ans_s->setText(QString::number(res.first, 'f', 2));
+    ui->ans_c->setText(QString::number(res.second, 'f', 2));
+
+    drawRect();
+    drawNode();
+}
+
+void MainWindow::insertLine(QString line)
+{
+    double inx1, inx2, iny1, iny2;
+    sscanf(line.toStdString().c_str(), "%lf %lf %lf %lf", &inx1, &iny1, &inx2, &iny2);
+    qDebug() << "read input: (" << inx1 << "," << iny1 << ")  " << "(" << inx2 << "," << iny2 << ")";
+
+    inputnum ++;
+    X1[inputnum] = inx1;
+    Y1[inputnum] = iny1;
+    X2[inputnum] = inx2;
+    Y2[inputnum] = iny2;
+
+    mmax = fmax(mmax, inx1);
+    mmax = fmax(mmax, iny1);
+    mmax = fmax(mmax, inx2);
+    mmax = fmax(mmax, iny2);
+
+    rectdata* newrect = new rectdata(inx1*maprate,iny1*maprate,inx2*maprate,iny2*maprate);
+    rect_data.push_back(newrect);
+}
+
+void MainWindow::on_save_clicked()
+{
+    //创建一个file文件
+    QFileDialog fileDialog;
+    QString fileName = fileDialog.getSaveFileName(this,tr("Open File"),"/data",tr("Text File(*.txt)"));
+    if(fileName == "")
+    {
+        return;
+    }
+    QFile file(fileName);//可以自己选择路径来保存文件名
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QMessageBox::warning(this,tr("错误"),tr("打开文件失败"));
+        return;
+    }
+    else
+    {
+        QTextStream textStream(&file);
+
+        textStream << inputnum << '\n';
+
+        for(int i = 1; i <= inputnum; i ++ )
+        {
+            QString line;
+            line.sprintf("%.2f %.2f %.2f %.2f\n", X1[i], Y1[i], X2[i], Y2[i]);
+            textStream << line;
+        }
+        //QString str = ui->textEdit->toPlainText();//从textEdit里面回去内容，然后再直接拿来用
+        //textStream<<str;
+
+        QMessageBox::warning(this,tr("提示"),tr("保存文件成功"));
+        file.close();
+    }
+
+}
+
+void MainWindow::on_fileimport_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,QStringLiteral("文件对话框！"),"F:",QStringLiteral("TextFile(*txt)"));
+    qDebug() << "得到文件名:" << fileName;
+    QFile file(fileName);
+    QByteArray bytes;
+    if(!file.exists()) //文件不存在则退出
+    {
+        qDebug()<<"file not exist";
+        return;
+    }
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QString line;
+        QTextStream in(&file);  //用文件构造流
+
+        line = in.readLine();//读取一行放到字符串里 第一行为数量
+        inputnum = line.toInt();
+        for(int i = 1; i <= inputnum; i ++ )
+        {
+            line=in.readLine();//循环读取下行
+            if(line.isNull()) break;
+            insertLine(line);
+        }
+    }
+
+    std::pair<double,double> res =  segtree->Calc(inputnum, X1, Y1, X2, Y2);
+    qDebug() << res.first << "  " << res.second;
+
+    ui->ans_s->setText(QString::number(res.first, 'f', 2));
+    ui->ans_c->setText(QString::number(res.second, 'f', 2));
+
+    drawRect();
+    drawNode();
+
+    qDebug() << "导入成功";
 }
