@@ -26,7 +26,8 @@ void SegmentTree::push_up(int x)
 void SegmentTree::build(int x,int l,int r)
 {
     tree[x].l = l, tree[x].r = r;
-    if(l==r){tree[x].cnt = tree[x].len = tree[x].cov = 0; tree[x].lc = tree[x].rc = 0;return;}
+    tree[x].cnt = tree[x].len = tree[x].cov = 0; tree[x].lc = tree[x].rc = 0;
+    if(l==r) return;
     int mid = (l+r)>>1;
     build(x<<1,l,mid);
     build(x<<1|1,mid+1,r);
