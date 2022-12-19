@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-<<<<<<< Updated upstream
 #include<qpushbutton.h>
-=======
 
 
 drawnode::drawnode(Node *node, drawnode *_fa)
@@ -16,21 +14,20 @@ drawnode::drawnode(Node *node, drawnode *_fa)
 }
 
 
-//比例尺 10:1
->>>>>>> Stashed changes
+//比例尺 50:1
+static int maprate = 50;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-<<<<<<< Updated upstream
+
     this->resize(1600,900);
     ui->martixnum->setPlaceholderText(" 矩阵个数 ");
     ui->x1->setPlaceholderText("x1");
     ui->x2->setPlaceholderText("x2");
     ui->y1->setPlaceholderText("y1");
     ui->y2->setPlaceholderText("y2");
-=======
 
     Rscene = new QGraphicsScene(0, 0, ui->RgraphicsView->width()-10, ui->RgraphicsView->height()-10);
     Tscene = new QGraphicsScene(0, 0, ui->TgraphicsView->width()-10, ui->TgraphicsView->height()-10);
@@ -44,7 +41,6 @@ MainWindow::MainWindow(QWidget *parent)
     segtree = new SegmentTree;
 
     test();
->>>>>>> Stashed changes
 }
 
 MainWindow::~MainWindow()
@@ -52,16 +48,19 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
 void MainWindow::node2graph(drawnode* node)
 {
-    QGraphicsRectItem *item = new QGraphicsRectItem(node->x,node->y, vectorWidth, vectorHeight);
+    QGraphicsRectItem *item = new QGraphicsRectItem(node->x,node->y, (node->treenode->r - node->treenode->l + 1) * maprate, vectorHeight);
     item->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
     item->setZValue(2);
     item->setBrush(QBrush(node->vectorColor));
     Tscene->addItem(item);
 
     //QGraphicsTextItem *textitem = new QGraphicsTextItem(node->treenode->s, item);
-    QGraphicsTextItem *textitem = new QGraphicsTextItem("test", item);
+    char buffer[255];
+    sprintf(buffer, "[%d, %d]", node->treenode->l, node->treenode->r);
+    QGraphicsTextItem *textitem = new QGraphicsTextItem(buffer, item);
     textitem->setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
     textitem->setX(node->x);
     textitem->setY(node->y);
@@ -81,14 +80,12 @@ void MainWindow::node2graph(drawnode* node)
     }
 
     Tscene->clearSelection();
-    //item->setSelected(true);
-    //qDebug() << " 成功插入节点 " << node->treenode->s << " 于( " << node->x << " , " << node->y << ")";
 }
 
 void MainWindow::drawNode()
 {
     Tscene->clear();
-    //if(!alreadyGen) genDrawNode();
+    genDrawNode();
 
     qDebug() << " 开始绘制 ";
     for(int dep = maxDep; dep >= 1; dep --)
@@ -120,29 +117,23 @@ void MainWindow::drawNode()
         //连线   node.fa.x, node.fa.y -> node.x, node.y
 }
 
-void SegmentTree::ergodic(int x,int l,int r)
-{
-    //返回你想要的值
-    //线段左端点X[tree[x].l]，右端点X[tree[x].r+1]
-    if(tree[x].l==tree[x].r){return;}
-    int mid = (l+r)>>1;
-    ergodic(x<<1,l,mid);
-    ergodic(x<<1|1,mid+1,r);
-}
-
 void MainWindow::dfs(int x, int l, int r, drawnode *fa, int dep)
 {
     //遍历用的深度优先搜索，此处为前序遍历，搜索出本层所有节点，写入drawNodeData数组
 
     //load
-    drawNodeData[dep][++cnt] = new drawnode(&segtree->tree[x], fa);
-    if(fa) qDebug() << "pos: dep" << dep << "  data: (" << segtree->tree[x].l << ", " << segtree->tree[x].r << ")  cnt:"<< cnt << "  fa:" << fa->treenode->website;
+    drawnode* current = drawNodeData[dep][++ layer[dep]] = new drawnode(&segtree->tree[x], fa);
+    //if(fa) qDebug() << "pos: dep" << dep << "  data: (" << segtree->tree[x].l << ", " << segtree->tree[x].r << ")  cnt:"<< cnt << "  fa:" << fa->treenode->website;
 
     //next
-    if(segtree->tree[x].l==segtree->tree[x].r){return;}
+    if(segtree->tree[x].l==segtree->tree[x].r)
+    {
+        if(maxDep < dep) maxDep = dep;
+        return;
+    }
     int mid = (l+r)>>1;
-    dfs(x<<1, l, mid, fa, dep);
-    dfs(x<<1|1, mid+1, r, fa, dep);
+    dfs(x<<1, l, mid, current, dep+1);
+    dfs(x<<1|1, mid+1, r, current, dep+1);
 }
 
 void MainWindow::genDrawNode()
@@ -150,50 +141,24 @@ void MainWindow::genDrawNode()
     memset(drawNodeData, 0, sizeof(drawNodeData));
     memset(layer, 0, sizeof(layer));
 
-    layer[1] = 1;
-    drawNodeData[1][1] = new drawnode(&segtree->tree[1], NULL);
-
-    //更改遍历方式，采用递归的形式遍历，本质上还是双指针法，此处优先处理根节点
-    int dep = 2;
-    cnt = 0;
-    //drawnode *current = new drawnode(T, drawNodeData[1][1]);
-    //dfs(current->treenode, current->fa, dep);
-    //layer[dep] = cnt;
-    //dep++;
-    //cnt = 0;
-
-    while(1)
-    {
-        if(drawNodeData[dep-1][1] == NULL)
-        {
-            maxDep = dep-2;
-            break;
-        }
-        for(int i = 1; i <= layer[dep-1]; i ++ )
-        {
-            //current->treenode->root即搜索本指针的下一层，并收集结果到drawNodeData数组
-            drawnode *current = drawNodeData[dep-1][i];
-            dfs(current->treenode->root, current, dep);
-        }
-        layer[dep] = cnt;
-        dep ++;
-        cnt = 0;
-    }
+    dfs(1, 1, mmax, NULL, 1);
 
     for(int dep = 1; dep <= maxDep; dep ++)
     {
+        int acc = 0;
         for(int i = 1; i <= layer[dep]; i ++ )
         {
             drawnode *current = drawNodeData[dep][i];
-            current->x = sceneWidth  / (layer[dep]+1) * i;
-            current->y = sceneHeight / (maxDep + 1) * dep;
+            //current->x = TsceneWidth  / (layer[dep]+1) * i;
+            current->x = acc;
+            current->y = TsceneHeight / (maxDep + 1) * (maxDep - dep + 1);
+
+            acc += ( current->treenode->r - current->treenode->l + 1) * maprate;
         }
         qDebug() << "layer: " << dep << ": " << layer[dep];
     }
     qDebug() << "dep: " << maxDep;
 }
-
-
 
 void MainWindow::drawRect()
 {
@@ -237,12 +202,19 @@ void myrect::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
     mPen.setWidth(2);
     mPen.setColor(this->rect_data->bgcolor);
     mBrush.setColor(this->rect_data->bgcolor);
+
+
+    QPainterPath pathn,pathOthersn, path, pathOthers;
+
+    pathOthersn = this->shape();
+    pathOthersn.translate(this->pos());
+    pathn += pathOthersn;
+
+    pathn.translate(-this->pos().x(),-this->pos().y());//转换回本Item中的坐标
     painter->setPen(mPen);
     painter->setBrush(mBrush);
+    painter->drawPath(pathn);
 
-    QPainterPath path,pathOthers;
-    path.addRect(this->rect);
-    painter->drawPath(path);
 
     //有重叠的情况
     if(!this->scene()->collidingItems(this).isEmpty())
@@ -275,15 +247,25 @@ void MainWindow::test()
     double X2[]={0,2,3};
     double Y1[]={0,0,1};
     double Y2[]={0,2,3};
-    rectdata* a = new rectdata(0,0,100,100);
-    rectdata* b = new rectdata(200,200,300,300);
+    rectdata* a = new rectdata(0*maprate,0*maprate,1*maprate,1*maprate);
+    rectdata* b = new rectdata(2*maprate,2*maprate,3*maprate,3*maprate);
 
-    rectdata* c = new rectdata(0,0,200,200);
-    rectdata* d = new rectdata(150,150,300,300);
-    rect_data.push_back(c);
-    rect_data.push_back(d);
+    rectdata* c = new rectdata(0*maprate,0*maprate,1*maprate,1*maprate);
+    rectdata* d = new rectdata(2*maprate,2*maprate,3*maprate,3*maprate);
+
+    rectdata* f = new rectdata(0,0,200,200);
+    rectdata* g = new rectdata(100,100,300,300);
+    rectdata* h = new rectdata(150,150,300,300);
+
+    rect_data.push_back(f);
+    rect_data.push_back(g);
+    rect_data.push_back(h);
 
     mmax = 3;
     drawRect();
+    std::pair<double,double> res =  segtree->Calc(2, X1, Y1, X2, Y2);
+    qDebug() << res.first << "  " << res.second;
+    drawNode();
+
     //drawRectLine();
 }
