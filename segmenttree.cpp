@@ -33,7 +33,7 @@ void SegmentTree::build(int x,int l,int r)
     push_up(x);
 }
 
-void SegmentTree::update(int x,int L,int R,int flag)
+void SegmentTree::update(int x,double L,double R,int flag)
 {
     if(X[tree[x].r+1]<=L||X[tree[x].l]>=R) return;
     if(X[tree[x].l]>=L&&X[tree[x].r+1]<=R)
