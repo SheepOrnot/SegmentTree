@@ -39,7 +39,7 @@ public:
 protected:
     void push_up(int x);
     void build(int x,int l,int r);
-    void update(int x,int L,int R,int flag);
+    void update(int x,double L,double R,int flag);
 };
 
 #endif // SEGMENTTREE_H
