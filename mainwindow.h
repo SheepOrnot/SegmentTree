@@ -89,6 +89,7 @@ public:
     int TsceneWidth, TsceneHeight;
 
     QVector<rectdata*> rect_data;
+    QVector<QGraphicsRectItem*> rect_pointer;
 
     void drawNode();
     //void genDrawNode();

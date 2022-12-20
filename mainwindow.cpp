@@ -162,6 +162,7 @@ void MainWindow::drawRect()
         item->setBrush(QBrush(Qt::white));
         item->setPen(QPen(rect_data[i]->bgcolor));
         Rscene->addItem(item);
+        rect_pointer.push_back(item);
     }
 }
 
@@ -251,6 +252,15 @@ void MainWindow::on_cancel_clicked()
 {
     if(inputnum == 0) return;
     inputnum --;
+
+    rectdata* last = rect_data.last();
+    free(last);
+    rect_data.pop_back();
+
+    QGraphicsRectItem* pRect = rect_pointer.last();
+    free(pRect);
+    rect_pointer.pop_back();
+
     if(inputnum == 0)
     {
         Rscene->clear();
@@ -265,10 +275,6 @@ void MainWindow::on_cancel_clicked()
         mmax = fmax(mmax, X2[inputnum]);
         mmax = fmax(mmax, Y2[inputnum]);
     }
-
-    rectdata* last = rect_data.last();
-    free(last);
-    rect_data.pop_back();
 
     std::pair<double,double> res =  segtree->Calc(inputnum, X1, Y1, X2, Y2);
     qDebug() << res.first << "  " << res.second;
